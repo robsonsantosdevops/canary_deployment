@@ -30,7 +30,7 @@ spec:
     - /spec/http/0
 
   - group: argoproj.io
-    kind: Application
+    kind: Rollout
     jsonPointers:
       - /status/conditions?(@.type=="OutOfSync")
 ---
