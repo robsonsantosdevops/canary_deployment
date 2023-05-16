@@ -6,12 +6,12 @@ metadata:
 spec:
   # gateways:
   # - istio-rollout-gateway
-  ignoreDifferences:
-  - group: networking.istio.io
-    kind: VirtualService
-    jsonPointers:
-    - /spec/http/0
-    
+  # ignoreDifferences:
+  # - group: networking.istio.io
+  #   kind: VirtualService
+  #   jsonPointers:
+  #   - /spec/http/0
+
   hosts:
   - istio-rollout.dev.argoproj.io
   http:
