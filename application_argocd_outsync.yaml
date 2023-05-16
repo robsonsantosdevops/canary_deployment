@@ -1,0 +1,47 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: canary-deployment-host
+  namespace: argocd
+spec:
+  project: gitops4
+  # ignoreDifferences:
+  # - group: networking.istio.io
+  #   kind: VirtualService
+  #   jsonPointers:
+  #   - /spec/http/0
+
+  source:
+    repoURL: 'https://github.com/robsonsantosdevops/canary_deployment.git'
+    targetRevision: HEAD
+    path: dev
+  destination: 
+    server: https://kubernetes.default.svc
+    namespace: teste4
+
+  syncPolicy:
+    syncOptions:
+    - CreateNamespace=true
+    - ApplyOutOfSyncOnly=true
+
+    automated:
+      selfHeal: true
+      prune: true
+---
+# this manually creates the default project
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: gitops4
+  namespace: argocd
+spec:
+  sourceRepos:
+    - '*'
+  destinations:
+    - namespace: '*'
+      server: '*'
+  clusterResourceWhitelist:
+    - group: '*'
+      kind: '*'
+
+# cmWh7yV65HvtV0R5
