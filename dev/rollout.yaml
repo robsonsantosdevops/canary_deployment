@@ -1,0 +1,37 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
+metadata:
+  name: rollouts-demo-host
+  namespace: teste4
+spec:
+  replicas: 2
+  revisionHistoryLimit: 2
+  selector:
+    matchLabels:
+      app: rollouts-demo-host
+  template:
+    metadata:
+      labels:
+        app: rollouts-demo-host
+    spec:
+      containers:
+      - name: rollouts-demo-host
+        image: argoproj/rollouts-demo:yellow
+        ports:
+        - name: http
+          containerPort: 8080
+          protocol: TCP
+  strategy:
+    canary:
+      canaryService: canary-svc  # required
+      stableService: stable-svc  # required
+      trafficRouting:
+        istio:
+          virtualService:
+            name: rollout-vsvc   # required
+            routes:
+            - primary            # optional if there is a single route in VirtualService, required otherwise
+      steps:
+      - setWeight: 5
+      - pause:
+          duration: 10m

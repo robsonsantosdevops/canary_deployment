@@ -1,0 +1,51 @@
+apiVersion: v1
+items:
+- apiVersion: networking.k8s.io/v1
+  kind: Ingress
+  metadata:
+    annotations:
+      nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    name: rollouts-ingress-canary
+    namespace: teste4
+  spec:
+    ingressClassName: nginx
+    rules:
+    - host: canary.spacesecuritynetwork.local
+      http:
+        paths:
+        - backend:
+            service:
+              name: canary-svc
+              port:
+                name: http
+          path: /
+          pathType: ImplementationSpecific
+kind: List
+metadata:
+  resourceVersion: ""
+---
+apiVersion: v1
+items:
+- apiVersion: networking.k8s.io/v1
+  kind: Ingress
+  metadata:
+    annotations:
+      nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    name: rollouts-ingress-stable
+    namespace: teste4
+  spec:
+    ingressClassName: nginx
+    rules:
+    - host: stable.spacesecuritynetwork.local
+      http:
+        paths:
+        - backend:
+            service:
+              name: stable-svc
+              port:
+                name: http
+          path: /
+          pathType: ImplementationSpecific
+kind: List
+metadata:
+  resourceVersion: ""
