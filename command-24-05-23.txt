@@ -1,0 +1,1000 @@
+   42  curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+   43  install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+   44  wget https://get.helm.sh/helm-v3.11.2-linux-amd64.tar.gz
+   45  tar -zxf helm-v3.11.2-linux-amd64.tar.gz
+   46  mv linux-amd64/helm /usr/local/bin/helm
+   47  curl -Lo ./kind https://kind.sigs.k8s.io/dl/v0.17.0/kind-linux-amd64
+   48  chmod +x ./kind
+   49  mv ./kind /usr/local/bin/kind
+   50  curl -fsSL https://get.docker.com | sh
+   51  mkdir /root/.ssh/
+   52  vim /root/.ssh/config
+   53  apt install vim -y
+   54  vim /root/.ssh/config
+   55  scp -r robsonsantos@192.168.15.23:/home/devops/ssh-keys/ .
+   56  ls
+   57  ls ssh-keys/
+   58  cd ssh-keys/
+   59  ls
+   60  scp -r robsonsantos@192.168.15.23:/home/robsonsantos/ssh-keys/* .
+   61  ls
+   62  mkdir /home/robsonsantos/devops
+   63  cd ..
+   64  mv ssh-keys/ /home/robsonsantos/devops/
+   65  chmod -R 0400 /home/robsonsantos/devops/ssh-keys/
+   66  ls /home/robsonsantos/devops/ssh-keys/
+   67  rm -rf  /home/robsonsantos/devops/ssh-keys/positivo/
+   68  rm -rf  /home/robsonsantos/devops/ssh-keys/tiba*
+   69  rm -rf  /home/robsonsantos/devops/ssh-keys/ssh-config-template 
+   70  rm -rf  /home/robsonsantos/devops/ssh-keys/multicloudkey* 
+   71  rm -rf  /home/robsonsantos/devops/ssh-keys/iza/
+   72  rm -rf  /home/robsonsantos/devops/ssh-keys/id_rsa_abc 
+   73  rm -rf  /home/robsonsantos/devops/ssh-keys/robson.santos/id_rsa_abc 
+   74  chown robsonsantos:robsonsantos -R devops/
+   75  chown robsonsantos:robsonsantos -R /home/robsonsantos/devops/
+   76  vim /root/.ssh/config 
+   77  mv /home/robsonsantos/devops/ /home/
+   78  ls /home/devops/
+   79  vim /root/.ssh/config 
+   80  curl -sSL https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor -o /usr/share/keyrings/ms-vscode-keyring.gpg
+   81  cp /etc/apt/sources.list /home/robsonsantos/
+   82  echo "deb [arch=amd64 signed-by=/usr/share/keyrings/ms-vscode-keyring.gpg] https://packages.microsoft.com/repos/vscode stable main" | sudo tee /etc/apt/sources.list.d/vscode.list
+   83  apt update 
+   84  apt install code
+   85  scp -r robsonsantos@192.168.15.23:/home/robsonsantos/vpn/ .
+   86  apt install libqt5webkit5 -y
+   87  dpkg -i vpn/GlobalProtect_UI_deb-6.0.4.1-28.deb
+   88  cat <<EOF | kind create cluster --config=-
+   89  kind: Cluster
+   90  apiVersion: kind.x-k8s.io/v1alpha4
+   91  name: space-k8s-cluster
+   92  nodes:
+   93  - role: control-plane
+   94    kubeadmConfigPatches:
+   95    - |
+   96      kind: InitConfiguration
+   97      nodeRegistration:
+   98        kubeletExtraArgs:
+   99          node-labels: "ingress-ready=true"
+  100    extraPortMappings:
+  101    - containerPort: 80
+  102      hostPort: 80
+  103      protocol: TCP
+  104    - containerPort: 443
+  105      hostPort: 443
+  106      protocol: TCP
+  107  EOF
+  108  kind export kubeconfig --name space-k8s-cluster
+  109  kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.13.7/config/manifests/metallb-native.yaml
+  110  kubectl wait --namespace metallb-system                 --for=condition=ready pod                 --selector=app=metallb                 --timeout=90s
+  111  kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/kind/deploy.yaml
+  112  kubectl wait --namespace ingress-nginx   --for=condition=ready pod   --selector=app.kubernetes.io/component=controller   --timeout=90s
+  113  kubectl get nodes
+  114  kubectl create ns argocd
+  115  kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+  116  vim argocd_ing.yaml
+  117  kubectl apply -f argocd_ing.yaml 
+  118  kubectl get ing -n argocd
+  119  vim /etc/hosts
+  120  curl -sSL -o argocd-linux-amd64 https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64
+  121  udo install -m 555 argocd-linux-amd64 /usr/local/bin/argocd
+  122  sudo install -m 555 argocd-linux-amd64 /usr/local/bin/argocd
+  123  rm argocd-linux-amd64
+  124  argocd admin initial-password -n argocd
+  125  ifconfig 
+  126  vim /etc/hosts
+  127  argocd login argocd.spacesecuritynetwork.local:443
+  128  argocd account update-password
+  129  argocd account update-password --grpc-web
+  130  echo "argocd admin initial-password -n argocd" > argocd
+  131  kubectl -n argo port-forward deployment/argo-server 2746:2746
+  132  kubectl -n argocd port-forward deployment/argo-server 2746:2746
+  133  kubectl get ing -n argocd
+  134  kubectl get po -n argocd
+  135  kubectl -n argocd port-forward argocd-server-5b69986577-ftw8p 2746:2746
+  136  kubectl -n argocd port-forward argocd-server-5b69986577-ftw8p 80:8080
+  137  kubectl -n argocd port-forward argocd-server-5b69986577-ftw8p 443:443
+  138  kubectl get po -n argocd
+  139  echo "argocd admin initial-password -n argocd" >> argocd
+  140  echo "argocd login argocd.spacesecurity.local:443" >> argocd
+  141  echo "argocd account update-password" >> argocd
+  142  kubectl -n argocd logs argocd-server-5b69986577-ftw8p 
+  143  kubectl -n argocd logs -f argocd-server-5b69986577-ftw8p 
+  144  vim /etc/hosts
+  145  kubectl get ing -n argocd
+  146  vim argocd.txt
+  147  vim argocd_ing.yaml 
+  148  history > commands.txt
+  149  vim commands.txt 
+  150  vim kind.txt
+  151  vim application.yaml
+  152  ls /home/robsonsantos/
+  153  cat /etc/passwd
+  154  passwd robsonsantos
+  155  htop
+  156  apt update -y
+  157  vim /etc/apt/sources.list.d/teamviewer.list
+  158  mv /etc/apt/sources.list.d/teamviewer.list .
+  159  apt update -y
+  160  apt upgrade -y
+  161  apt update -y
+  162  apt install curl wget unzip git -y
+  163  apt install openssh-server openssh-client -y
+  164  ifconfig
+  165  apt install net-tools -y
+  166  ifconfig 
+  167  w
+  168  ls Downloads/
+  169  ~
+  170  ls Downloads/
+  171  htop 
+  172  vim /etc/hosts
+  173  cat Downloads/argocd
+  174  argocd admin initial-password -n argocd
+  175  cat Downloads/argocd
+  176  argocd admin initial-password -n argocd
+  177  argocd login argocd.spacesecuritynetwork.local:443
+  178  argocd login argocd.spacesecuritynetwork.local:443 --grpc-web
+  179  argocd account update-password
+  180  cd Downloads/
+  181  wget "https://teams.microsoft.com/downloads/desktopurl?env=production&plat=linux&arch=x64&download=true&linuxArchiveType=deb" -O teams.deb
+  182  wget -qO - https://packages.microsoft.com/keys/microsoft.asc| sudo apt-key add -
+  183  echo "deb https://packages.microsoft.com/repos/ms-teams stable main" | sudo tee /etc/apt/sources.list.d/teams.list
+  184  sudo snap install teams
+  185  apt install pip3
+  186  apt install pip
+  187  sudo snap install teams
+  188  sudo apt --only-upgrade install teams
+  189  apt install gnome-tweaks
+  190  apt install gnome-shell-extensions
+  191  dpkg -l |grep teams
+  192  dpkg -l 
+  193  apt remove teamviewer
+  194  code .
+  195  cp -rf * /home/devops/
+  196  chown robsonsantos:robsonsantos -R /home/devops/
+  197  kind export kubeconfig --name space-k8s-cluster
+  198  kubectl get nodes
+  199  cd /home/devops/
+  200  kubectl delete ns argocd
+  201  kubectl create ns argocd
+  202  kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+  203  kubectl -n argo port-forward deployment/argo-server 2746:2746
+  204  kubectl -n argocd port-forward deployment/argo-server 2746:2746
+  205  kubectl get po -n argocd
+  206  kubectl get svc -n argocd
+  207  kubectl edit svc argocd-server -n argocd
+  208  kubectl apply -f argocd_ingress.yaml 
+  209  ls
+  210  kubectl apply -f argocd_ing.yaml 
+  211  argocd admin initial-password -n argocd
+  212  kubectl get po -n argocd
+  213  kubectl port-forward -n argocd argocd-server-5b69986577-6z2gc 443:443
+  214  kubectl get po -n argocd
+  215  kubectl port-forward -n argocd argocd-server-5b69986577-6z2gc 80:80
+  216  kubectl port-forward -n argocd argocd-server-5b69986577-6z2gc 80:443
+  217  kubectl port-forward -n argocd argocd-server-5b69986577-6z2gc 443:443
+  218  kubectl get svc -n argocd
+  219  kubectl get ing -n argocd
+  220  kubectl logs -f -n argocd argocd-server-5b69986577-6z2gc
+  221  mkdir certicate
+  222  mv certicate/ certificate
+  223  cd certificate/
+  224  openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout argocd.key -out argocd.crt
+  225  ls
+  226  openssl rsa -in argocd.key -out argocd-key.pem && openssl x509 -in argocd.crt -out argocd-crt.pem -outformat PEM
+  227  openssl rsa -in argocd.key -out argocd-key.pem  -outformat PEM
+  228  openssl rsa -in argocd.key -out argocd-key.pem  -outform PEM
+  229  openssl rsa -in argocd.key -out argocd-key.pem && openssl x509 -in argocd.crt -out argocd-crt.pem -outform PEM
+  230  ls
+  231  kubectl create -n argocd secret tls argocd-server-tls   --cert=argocd-crt.pem   --key=argocd-key.pem
+  232  kubectl get secrets -n argocd
+  233  kubectl get deploy -n argocd
+  234  kubectl edit deploy argocd-server -n argocd
+  235  kubectl exec -it -n argocd argocd-server-5b69986577-6z2gc  -- /bin/bash
+  236  kubectl exec -it -user=root -n argocd argocd-server-5b69986577-6z2gc  -- /bin/bash
+  237  kubectl exec -it --user=root -n argocd argocd-server-5b69986577-6z2gc  -- /bin/bash
+  238  kubectl get secrets -n argocd
+  239  kubectl apply -f ../argocd_ing.yaml 
+  240  argocd admin initial-password -n argocd
+  241  cd ..
+  242  scp argocd_ing.yaml robsonsantos@192.168.15.23:/home/robsonsantos/argocd-externo
+  243  scp argocd.txt robsonsantos@192.168.15.23:/home/robsonsantos/argocd-externo
+  244  mkdir robsongithub
+  245  cd robsongithub/
+  246  git clone git@robsonsantos:robsonsantosdevops/teste_argo.git
+  247  git clone git@robsonsantos:robsonsantosdevops/gitops.git
+  248  cd gitops/
+  249  cp -rf ../teste_argo/*.yaml .
+  250  cp -rf ../teste_argo/dev/ .
+  251  chown robsonsantos:robsonsantos -R /home/devops/
+  252  kubectl apply -f application.yaml 
+  253  git add .
+  254  git commit -m "add ops k8s"
+  255  git config --global user.email "robson.suportes@hotmail.com"
+  256  git config --global user.name "Robson Santos"
+  257  git commit -m "add ops k8s"
+  258  git push
+  259  kubectl delete -f application.yaml 
+  260  kubectl apply -f application.yaml 
+  261  kubectl delete -f application.yaml 
+  262  kubectl apply -f application.yaml 
+  263  kubectl create ns frontend
+  264  kubectl delete -f application.yaml 
+  265  kubectl apply -f application.yaml 
+  266  kubectl delete -f application.yaml 
+  267  argocd app create guestbook --repo git@github.com:robsonsantosdevops/gitops.git --path dev --dest-server https://kubernetes.default.svc --dest-namespace frontend
+  268  argocd login argocd.spacesecuritynetwork.local:443
+  269  argocd app create guestbook --repo git@github.com:robsonsantosdevops/gitops.git --path dev --dest-server https://kubernetes.default.svc --dest-namespace frontend
+  270  kubectl config view
+  271  kind export kubeconfig --name space-k8s-cluster
+  272  kubectl cluster-info
+  273  cd /home/devops/
+  274  ls
+  275  cd robsongithub/gitops/
+  276  ls
+  277  cp ../../argocd.txt .
+  278  vim argocd-secret.yaml 
+  279  vim argocd-cm.yaml 
+  280  vim argocd-cm-argocd-old.yaml 
+  281  vim argocd-cm.yaml 
+  282  vim argocd-cm-argocd-old.yaml 
+  283  htop 
+  284  ssh robsonsantos@192.168.15.23
+  285  vim /etc/hosts
+  286  cd /home/devops/robsongithub/gitops
+  287  ls
+  288  kubectl apply -f application.yaml 
+  289  kubectl delete -f application.yaml 
+  290  kubectl apply -f application.yaml 
+  291  kubectl get po -n argocd
+  292  kubectl delete -f application.yaml 
+  293  vim /etc/hosts
+  294  kubectl apply -f application.yaml 
+  295  kubectl delete ns argocd
+  296  kubectl create ns argocd
+  297  kubectl get po -n argocd
+  298  kubectl get secrets -n argocd
+  299  kubectl get ns
+  300  kind delete cluster space-k8s-cluster
+  301  kind  cluster delete space-k8s-cluster
+  302  kind delete cluster --name space-k8s-cluster
+  303  cat <<EOF | kind create cluster --config=-
+  304  kind: Cluster
+  305  apiVersion: kind.x-k8s.io/v1alpha4
+  306  name: space-k8s-cluster
+  307  nodes:
+  308  - role: control-plane
+  309    kubeadmConfigPatches:
+  310    - |
+  311      kind: InitConfiguration
+  312      nodeRegistration:
+  313        kubeletExtraArgs:
+  314          node-labels: "ingress-ready=true"
+  315    extraPortMappings:
+  316    - containerPort: 80
+  317      hostPort: 80
+  318      protocol: TCP
+  319    - containerPort: 443
+  320      hostPort: 443
+  321      protocol: TCP
+  322  EOF
+  323  kind export kubeconfig --name space-k8s-cluster
+  324  kubectl get ns
+  325  kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.13.7/config/manifests/metallb-native.yaml
+  326  kubectl wait --namespace metallb-system                 --for=condition=ready pod                 --selector=app=metallb                 --timeout=90s
+  327  docker network inspect -f '{{.IPAM.Config}}' kind
+  328  kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/kind/deploy.yaml
+  329  kubectl wait --namespace ingress-nginx   --for=condition=ready pod   --selector=app.kubernetes.io/component=controller   --timeout=90s
+  330  kubectl create ns argocd
+  331  kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+  332  kubectl apply -f application.yaml 
+  333  kubectl delete -f application.yaml 
+  334  kubectl apply -f ../../argocd_ing.yaml 
+  335  argocd admin initial-password -n argocd
+  336  argocd login argocd.spacesecuritynetwork.local:443
+  337  argocd account update-password
+  338  argocd app create guestbook --repo git@github.com:robsonsantosdevops/gitops.git --path dev --dest-server https://kubernetes.default.svc --dest-namespace frontend
+  339  argocd app create guestbook --repo git@github.com:robsonsantosdevops/gitops.git --path dev --dest-server https://kubernetes.default.svc --dest-namespace frontend
+  340  kubectl apply -f application.yaml 
+  341  kubectl delete -f application.yaml 
+  342  kubectl apply -f application.yaml 
+  343  kubectl delete -f application.yaml 
+  344  kubectl apply -f application.yaml 
+  345  kubectl delete -f application.yaml 
+  346  kubectl apply -f application.yaml 
+  347  kubectl delete -f application.yaml 
+  348  kubectl apply -f application.yaml 
+  349  kubectl delete -f application.yaml 
+  350  kubectl apply -f application.yaml 
+  351  kubectl delete -f application.yaml 
+  352  kubectl apply -f application.yaml 
+  353  kubectl delete -f application.yaml 
+  354  kubectl apply -f application.yaml 
+  355  echo "robson.suportes@hotmail.com"|base64 
+  356  echo "cm9ic29uLnN1cG9ydGVzQGhvdG1haWwuY29tCg=="|base64 -d
+  357  echo "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"|base64 
+  358  echo "Z2l0aHViX3BhdF8xMUFOT0tQQkkwN1NWM3JSUGVjWHRyX0ZBZzlZc2ZYQTRaNzZ0M2h1SHNxSlpuNFZvZzMzV3hKd3ZZdGY1TnpOd2VOUDNIM0lYSzlyWlZtMGNDCg=="|base64 -d
+  359  kubectl apply -f argocd-secret.yaml -f argocd-cm.yaml 
+  360  kubectl delete -f argocd-secret.yaml -f argocd-cm.yaml 
+  361  kubectl delete -f argocd-secret.yaml
+  362  kubectl apply -f argocd-secret.yaml
+  363  kubectl apply -f argocd-cm.yaml 
+  364  kubectl delete -f argocd-cm.yaml 
+  365  kubectl apply -f argocd-cm.yaml 
+  366  kubectl delete -f argocd-cm.yaml 
+  367  kubectl apply -f argocd-cm.yaml 
+  368  chown robsonsantos:robsonsantos -R /home/devops/
+  369  kubectl delete -f argocd-cm.yaml 
+  370  kubectl apply -f argocd-cm-argocd-old.yaml 
+  371  kubectl delete -f argocd-cm-argocd-old.yaml 
+  372  kubectl apply -f argocd-cm-argocd-old.yaml 
+  373  kubectl apply -f application.yaml 
+  374  cd ..
+  375  ls
+  376  cd teste_argo/
+  377  ls
+  378  cd dev/
+  379  ls
+  380  kubectl get ns
+  381  kubectl get svc istio-system
+  382  kubectl get po istio-system
+  383  kubectl get svc -n istio-system
+  384  cp ../../../istio-1.17.1/samples/bookinfo/platform/kube/bookinfo.yaml .
+  385  cd ..
+  386  git add . && git commit -m "add bookinfo" && git push
+  387  vim dev/bookinfo.yaml 
+  388  git add . && git commit -m "add bookinfo" && git push
+  389  kubectl get po -n teste
+  390  kubectl get svc -n teste
+  391  kubectl get ing -n teste
+  392  kubectl get svc -n teste
+  393  kubectl port-forward -n teste productpage-v1-979d4d9fc-c86c9 80:9080
+  394  git add . && git commit -m "add bookinfo" && git push
+  395  kubectl get ing -n teste
+  396  vim /etc/hosts
+  397  kubectl get ing -n teste
+  398  git add . && git commit -m "add bookinfo" && git push
+  399  kubectl apply -f bookinfo_ing.yaml 
+  400  kubectl get ing -n teste
+  401  kubectl delete -f bookinfo_ing.yaml 
+  402  kubectl get ing -n teste
+  403  cp bookinfo_ing.yaml dev/
+  404  git add . && git commit -m "add bookinfo" && git push
+  405  vim /etc/hosts
+  406  kubectl apply -f regra_istio.yaml 
+  407  ls
+  408  mkdir aplicativo-teste
+  409  mv dev/bookinfo* aplicativo-teste/
+  410  git add . && git commit -m "add bookinfo" && git push
+  411  cd ..
+  412  cd ../devops/robsongithub/
+  413  rm -rf teste_argo/
+  414  git clone git@robsonsantos:robsonsantosdevops/gitopspublic.git
+  415  chown robsonsantos:robsonsantos -R /home/devops/
+  416  vim /etc/hosts
+  417  fg
+  418  kubectl get po -n teste
+  419  kubectl edit po productpage-v1-979d4d9fc-tdm5j -n teste
+  420  kubectl get deploy -n teste
+  421  kubectl edit deploy productpage-v1 -n teste
+  422  ls
+  423  vim gitopspublic/regra_istio.yaml 
+  424  kubectl apply -f  gitopspublic/regra_istio.yaml 
+  425  vim gitopspublic/regra_istio.yaml 
+  426  kubectl apply -f  gitopspublic/regra_istio.yaml 
+  427  kubectl edit deploy productpage-v1 -n teste
+  428  argocd admin initial-password -n argocd
+  429  argocd login argocd.spacesecuritynetwork.local:443
+  430  ifconfig 
+  431  scp -rf gitops/ robsonsantos@192.168.15.23:/home/devops/repos/rbn_repo/
+  432  scp -rf gitops/* robsonsantos@192.168.15.23:/home/devops/repos/rbn_repo/gitops/
+  433  ssh robsonsantos@192.168.15.23
+  434  scp -r gitops/* robsonsantos@192.168.15.23:/home/devops/repos/rbn_repo/gitops/
+  435  cd gitops
+  436  git pull
+  437  git add . 
+  438  git commit -m "update"
+  439  git push
+  440  git pull
+  441  git pull origin master
+  442  git push
+  443  cd ..
+  444  mv gitops/ gitops_old
+  445  git clone git@robsonsantos:robsonsantosdevops/gitops.git
+  446  rm -rf gitops_old/
+  447  chown robsonsantos:robsonsantos -R /home/devops/
+  448  cd gitops
+  449  git pull
+  450  cd ..
+  451  git clone git@robsonsantos:robsonsantosdevops/eks-karpenter.git
+  452  chown robsonsantos:robsonsantos -R /home/devops/
+  453  kubectl get nodes
+  454  helm repo add kedacore https://kedacore.github.io/charts
+  455  helm repo update
+  456  kubectl create namespace keda
+  457  helm install keda kedacore/keda --namespace keda
+  458  helm list
+  459  kubectl get po -n keda
+  460  export KARPENTER_VERSION=v0.27.3
+  461  export CLUSTER_NAME="${USER}-karpenter-demo"
+  462  export AWS_DEFAULT_REGION="us-west-2"
+  463  export AWS_ACCOUNT_ID="$(aws sts get-caller-identity --query Account --output text)"
+  464  export TEMPOUT=$(mktemp)
+  465  kubectl config view
+  466  kubectl cluster info
+  467  kubectl cluster-info
+  468  kubectl top pod --all-namespaces
+  469  helm repo add metrics-server https://kubernetes-sigs.github.io/metrics-server/ 
+  470  helm -n kube-system upgrade --installmetrics-server metrics-server/metrics-server
+  471  helm -n kube-system install  --installmetrics-server metrics-server/metrics-server
+  472  kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
+  473  kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/high-availability.yaml
+  474  helm -n kube-system upgrade --installmetrics-server metrics-server/metrics-server
+  475  helm -n kube-system upgrade  metrics-server/metrics-server
+  476  helm -n kube-system upgrade --installmetrics-server metrics-server/metrics-server
+  477  helm -n kube-system upgrade  metrics-server/metrics-server
+  478  kubectl get po -n kube-system
+  479  kubectl describe po metrics-server-57f8d8648c-gcdht -n kube-system
+  480  kubectl delete -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/high-availability.yaml
+  481  kubectl delete -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
+  482  kubectl get po -n kube-system
+  483  cat <<EOF | kind create cluster --config=-
+  484  kind: Cluster
+  485  apiVersion: kind.x-k8s.io/v1alpha4
+  486  name: veloe-k8s-cluster
+  487  nodes:
+  488  - role: control-plane
+  489    kubeadmConfigPatches:
+  490    - |
+  491      kind: InitConfiguration
+  492      nodeRegistration:
+  493        kubeletExtraArgs:
+  494          node-labels: "ingress-ready=true"
+  495    extraPortMappings:
+  496    - containerPort: 80
+  497      hostPort: 80
+  498      protocol: TCP
+  499    - containerPort: 443
+  500      hostPort: 443
+  501      protocol: TCP
+  502  EOF
+  503  pip install awscli-local
+  504  aws --endpoint-url=http://localhost:4566 kinesis list-streams
+  505  kubectl cluster-info
+  506  awslocal kinesis list-streams
+  507  git clone git@github.com:localstack/localstack-on-k8s.git
+  508  gh repo clone localstack/localstack-on-k8s
+  509  cp /home/robsonsantos/Downloads/localstack-on-k8s-main.zip .
+  510  unxz localstack-on-k8s-main.zip 
+  511  unzip localstack-on-k8s-main.zip 
+  512  make install
+  513  ls
+  514  cd localstack-on-k8s-main
+  515  make install
+  516  pip install virtualenv
+  517  make install
+  518  make init
+  519  make install
+  520  make init
+  521  make deploy
+  522  kubectl cluster-info
+  523  kubectl get po -n teste
+  524  make init
+  525  kubectl get all
+  526  kubectl get all -n teste
+  527  cd ..
+  528  ls
+  529  kubectl apply -f eks-karpenter/eks_v5_final/limits-namespace.yaml 
+  530  ls
+  531  cd gitopspublic/
+  532  cd dev/
+  533  vim bookinfo.yaml 
+  534  cd ..
+  535  git add . && git commit -m "teste limits" && git push
+  536  argocd account update-password
+  537  argocd admin initial-password -n argocd
+  538  kubectl get po -n teste
+  539  kubectl apply -f eks-karpenter/eks_v5_final/limits-namespace.yaml 
+  540  kubectl apply -f   ../eks-karpenter/eks_v5_final/limits-namespace.yaml 
+  541  vim bookinfo.yaml 
+  542  vim dev/bookinfo.yaml 
+  543  git add . && git commit -m "teste limits" && git push
+  544  kubectl delete -f   ../eks-karpenter/eks_v5_final/limits-namespace.yaml 
+  545  ls
+  546  kubectl apply -f ../../application.yaml 
+  547  kubectl get po -n teste2
+  548  kubectl get po -n teste1
+  549  kubectl get po -n teste
+  550  kubectl delete -f ../../application.yaml 
+  551  ls
+  552  mkdir dev2
+  553  vim argo_keycloak.yaml 
+  554  vim dev2/front.yaml
+  555  chown robsonsantos:robsonsantos -R /home/devops/
+  556  ls
+  557  kubectl get svc -n teste
+  558  kubectl get svc guestbook-ui -n teste -o yaml > site-estatico.yaml
+  559  chown robsonsantos:robsonsantos -R /home/devops/
+  560  git add . && git commit -m "teste limits" && git push
+  561  kubectl apply -f ../../application.yaml 
+  562  vim /etc/hosts
+  563  kubectl apply -f ../../application.yaml 
+  564  mkdir dev3
+  565  chown robsonsantos:robsonsantos -R /home/devops/
+  566  git add . && git commit -m "teste limits" && git push
+  567  kubectl apply -f ../../application.yaml 
+  568  ls
+  569  kubectl apply -f application_canary.yaml 
+  570  git add . && git commit -m "teste limits" && git push
+  571  kubectl argo rollouts set image canary nginx=nginx:latest
+  572  kubectl argo rollouts status canary
+  573  kubectl apply -f regra_istio.yaml 
+  574  ls
+  575  ls dev2/
+  576  mv dev2/canary* .
+  577  git add . && git commit -m "teste limits" && git push
+  578  kubectl delete -f application_canary.yaml 
+  579  kubectl apply -f application_canary.yaml 
+  580  kubectl get po -n argocd
+  581  kubectl apply -f application_canary.yaml 
+  582  kubectl api-resources --api-group argoproj.io
+  583  kubectl apply -f https://raw.githubusercontent.com/argoproj/argo-rollouts/stable/manifests/install.yaml
+  584  kubectl apply -f application_canary.yaml 
+  585  kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-rollouts/stable/manifests/install.yaml
+  586  kubectl apply -f application_canary.yaml 
+  587  kubectl delete -f application_canary.yaml 
+  588  kubectl apply -f application_canary.yaml 
+  589  kubectl delete -f application_canary.yaml 
+  590  helm repo add argo <https://argoproj.github.io/argo-helm>
+  591  helm install argo-rollouts argo/argo-rollouts
+  592  kubectl apply -f https://raw.githubusercontent.com/argoproj/argo-rollouts/stable/manifests/install.yaml
+  593  kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-rollouts/stable/manifests/install.yaml
+  594  history 
+  595  chown robsonsantos:robsonsantos -R /home/devops/
+  596  kubectl apply -f application_canary.yaml 
+  597  kubectl argo rollouts version
+  598  helm install argo-rollouts argo/argo-rollouts --set dashboard.enabled=true
+  599  git add . && git commit -m "canary v1" && git push
+  600  kubectl apply -f application_canary.yaml 
+  601  kubectl argo rollouts get rollout teste-rollout -n teste2 --watch
+  602  kubectl argo rollouts get rollout meu-site-estatico -n teste2 --watch
+  603  kubectl delete -f application_canary.yaml 
+  604  kubectl apply -f application_canary.yaml 
+  605  kubectl argo rollouts get rollout chip -n chip --watch
+  606  kubectl delete -f application_canary.yaml 
+  607  kubectl get po -n teste2
+  608  kubectl apply -f application_canary.yaml 
+  609  kubectl argo rollouts get rollout meu-site-estatico -n chip --watch
+  610  kubectl argo rollouts get rollout site-estatico-rollout -n chip --watch
+  611  kubectl argo rollouts get rollout site-estatico-rollout -n teste2 --watch
+  612  kubectl get deploy -n teste2
+  613  kubectl edit deploy meu-site-estatico   -n teste2
+  614  kubectl delete -f application_canary.yaml 
+  615  kubectl apply -f application_canary.yaml 
+  616  kubectl argo rollouts get rollout site-estatico-rollout -n teste2 --watch
+  617  kubectl delete -f application_canary.yaml 
+  618  kubectl apply -f application_canary.yaml 
+  619  kubectl argo rollouts get rollout nginx-deployment -n teste2 --watch
+  620  kubectl delete -f application_canary.yaml 
+  621  kubectl apply -f application_canary.yaml 
+  622  kubectl argo rollouts get rollout nginx-deployment -n teste2 --watch
+  623  kubectl delete -f application_canary.yaml 
+  624  kubectl argo rollouts get rollout nginx-deployment -n teste2 --watch
+  625  kubectl apply -f application_canary.yaml 
+  626  kubectl create namespace chip
+  627  kubectl delete -f application_canary.yaml 
+  628  kubectl apply -f application_canary.yaml 
+  629  kubectl argo rollouts get rollout chip -n chip --watch
+  630  kubectl delete -f application_canary.yaml 
+  631  ls
+  632  cd ..
+  633  git clone https://github.com/NiniiGit/argo-rollouts-example.git
+  634  ls
+  635  cd argo-rollouts-example/
+  636  kubectl create namespace argo-rollouts
+  637  kubectl apply -n argo-rollouts -f https://github.com/argoproj/argo-rollouts/releases/latest/download/install.yaml
+  638  kubectl get all -n argo-rollouts
+  639  kubectl argo rollouts dashboard
+  640  kubectl argo rollouts dashboard &
+  641  ls
+  642  mkdir templates_rollouts
+  643  cd templates_rollouts/
+  644  chown robsonsantos:robsonsantos -R /home/devops/
+  645  ping guestbook-ui.aws.newbusinesshom.local
+  646  curl http://guestbook-ui.aws.newbusinesshom.local
+  647  ls
+  648  argocd admin initial-password -n argocd
+  649  kubectl argo rollouts get rollout teste-argo-canary-rollout -n teste --watch
+  650  kubectl argo rollouts get rollout teste-argo-canary-rollout -n teste2 --watch
+  651  kubectl create namespace argo-rollouts
+  652  kubectl apply -n argo-rollouts -f https://github.com/argoproj/argo-rollouts/releases/latest/download/install.yaml
+  653  kubectl argo rollouts get rollout teste-argo-canary-rollout -n teste2 --watch
+  654  curl -LO https://github.com/argoproj/argo-rollouts/releases/latest/download/kubectl-argo-rollouts-darwin-amd64
+  655  kubectl argo rollouts get rollout teste-argo-canary-rollout -n teste2 --watch
+  656  chmod +x ./kubectl-argo-rollouts-darwin-amd64
+  657  mv ./kubectl-argo-rollouts-darwin-amd64 /usr/local/bin/kubectl-argo-rollouts
+  658  kubectl argo rollouts get rollout teste-argo-canary-rollout -n teste2 --watch
+  659  kubectl argo rollouts version
+  660  curl -LO https://github.com/argoproj/argo-rollouts/releases/latest/download/kubectl-argo-rollouts-linux-amd64
+  661  chmod +x ./kubectl-argo-rollouts-linux-amd64 
+  662  mv ./kubectl-argo-rollouts-linux-amd64 /usr/local/bin/kubectl-argo-rollouts
+  663  kubectl argo rollouts version
+  664  history 
+  665  kubectl argo rollouts get rollout teste-argo-canary-rollout -n teste2 --watch
+  666  kubectl argo rollouts get rollout teste-rollout -n teste2 --watch
+  667  kubectl argo rollouts get rollout teste-argo-canary-rollout -n teste2 --watch
+  668  cd ../devops/certificate/
+  669  kubectl create -n argocd secret tls argocd-server-tls   --cert=argocd-crt.pem   --key=argocd-key.pem
+  670  ls
+  671  kubectl delete ns argocd
+  672  kubectl get nodes
+  673  kubectl create -n argocd secret tls argocd-server-tls   --cert=argocd-crt.pem   --key=argocd-key.pem
+  674  cd /home/devops/istio-1.17.1
+  675  istioctl install --set profile=demo -y
+  676  ls
+  677  cp bin/istioctl /usr/local/bin/
+  678  istioctl install --set profile=demo -y
+  679  chmod +x /usr/local/bin/istioctl 
+  680  istioctl install --set profile=demo -y
+  681  istioctl install/upgrade --set profile=demo -y
+  682  istioctl upgrade --set profile=demo -y
+  683  kubectl apply -f samples/addons/kiali.yaml
+  684  kubectl apply -f samples/addons/prometheus.yaml 
+  685  kubectl apply -f samples/addons/grafana.yaml 
+  686  kubectl apply -f samples/addons/jaeger.yaml 
+  687  kubectl rollout status deployment/kiali -n istio-system
+  688  ls
+  689  kubectl apply -f kiali_ing.yaml 
+  690  vim /etc/hosts
+  691  kubectl get svc -n istio-system
+  692  kubectl apply -f prometheus_ing.yaml 
+  693  kubectl apply -f grafana_ing.yaml 
+  694  vim /etc/hosts
+  695  kubectl get svc -n istio-system
+  696  kubectl get po -n istio-system
+  697  kubectl port-forward -n istio-system jaeger-76cd7c7566-gtv9g 9411:9411
+  698  kubectl port-forward -n istio-system jaeger-76cd7c7566-gtv9g 14250:14250
+  699  kubectl port-forward -n istio-system jaeger-76cd7c7566-gtv9g 14268:14268
+  700  kubectl get ns
+  701  kubectl label namespace argocd istio-injection=enabled 
+  702  kubectl label namespace frontend istio-injection=enabled 
+  703  kubectl label namespace teste istio-injection=enabled 
+  704  vim /etc/hosts
+  705  kubectl apply -f samples/bookinfo/platform/kube/bookinfo.yaml -n teste
+  706  kubectl get po -n teste
+  707  kubectl delete -f samples/bookinfo/platform/kube/bookinfo.yaml -n teste
+  708  pwd
+  709  vim samples/bookinfo/networking/bookinfo-gateway.yaml
+  710  scp ../../robsonsantos/Downloads/terraform.drawio robsonsantos@
+  711  istioctl analyze
+  712  kubectl edit ns default
+  713  kubectl edit ns teste
+  714  kubectl get ns
+  715  kubectl get ing -n teste
+  716  kubectl edit ing bookinfo  -n teste
+  717  kubectl get po  -n teste
+  718  kubectl get deploy  -n teste
+  719  kubectl edit deploy productpage-v1  -n teste
+  720  kubectl edit ns teste
+  721  scp ../../robsonsantos/Downloads/terraform.drawio robsonsantos@192.168.15.23:/home/devops/
+  722  scp samples/bookinfo/platform/kube/bookinfo.yaml robsonsantos@192.168.15.23:/home/devops/
+  723  argocd admin initial-password -n argocd
+  724  argocd login argocd.spacesecuritynetwork.local:443
+  725  argocd account update-password
+  726  ls
+  727  cd ../devops/robsongithub/gitopspublic/
+  728  vim application_canary.yaml 
+  729  kubectl apply -f application_canary.yaml 
+  730  vim application_canary.yaml 
+  731  apt-get install radare2
+  732  snap install radare2 --classic
+  733  cd ..
+  734  cd /home/robsonsantos/
+  735  mkdir exe
+  736  mv Analise_HO.exe exe/
+  737  cd exe/
+  738  chmod 777 -R ../exe/
+  739  r2 -A -d Analise_HO.exe 
+  740  radare2 -A -d Analise_HO.exe 
+  741  wget https://d2ap6ypl1xbe4k.cloudfront.net/Hopper-v4-5.10.0-Linux-demo.deb
+  742  dpkg -i Hopper-v4-5.10.0-Linux-demo.deb 
+  743  apt install -f Hopper-v4-5.10.0-Linux-demo.deb 
+  744  wget https://www.hopperapp.com/linux/ubuntu/hopper-2.8.10_amd64.deb
+  745  dpkg -i hopper-2.8.10_amd64.deb 
+  746  apt install aptitude
+  747  apt --fix-broken install
+  748  dpkg -i hopper-2.8.10_amd64.deb 
+  749  apt install aptitude
+  750  apt --fix-broken install
+  751  apt update -y
+  752  vim /etc/apt/sources.list.d/teams.list 
+  753  apt update -y
+  754  apt install aptitude
+  755  apt hopper-2.8.10_amd64.deb 
+  756  aptitude install  hopper-2.8.10_amd64.deb 
+  757  dpkg -i hopper-2.8.10_amd64.deb 
+  758  aptitude install libicu48
+  759  aptitude install libpython2.7 
+  760  dpkg -i hopper-2.8.10_amd64.deb 
+  761  cd ..
+  762  ls
+  763  cd ../devops/robsongithub/
+  764  ls
+  765  cd ..
+  766  mkdir robsonazuredevops
+  767  cd robsonazuredevops/
+  768  vim /root/.ssh/config 
+  769  git clone git@robsonsuportes:v3/robsonsuportes/gitops-rollouts/gitops-rollouts
+  770  ls
+  771  ifconfig 
+  772  init 6
+  773  vim /root/.aws/credentials 
+  774  cd /home/devops/robsongithub/eks-karpenter/eks_v5_final/
+  775  terraform init -upgrade=true
+  776  terraform plan
+  777  ls
+  778  -rm -rf .terraform*
+  779  rm -rf .terraform*
+  780  terraform init -upgrade=true
+  781  terraform plan
+  782  swapoff -a
+  783  htop
+  784  terraform plan
+  785  vim /root/.aws/credentials 
+  786  terraform plan
+  787  vim /root/.aws/credentials 
+  788  terraform plan
+  789  vim /root/.aws/credentials 
+  790  terraform plan
+  791  ls
+  792  cd ..
+  793  terraform plan
+  794  ls
+  795  cd eks_v5_final/
+  796  ls
+  797  terraform plan
+  798  aws s3 ls
+  799  terraform plan
+  800  terraform apply -auto-approve
+  801  terraform destroy -auto-approve
+  802  argocd admin initial-password -n argocd
+  803  kubectl get po -n teste
+  804  kubectl get deploy -n teste
+  805  kubectl edit productpage-v1 deploy -n teste
+  806  kubectl edit deploy productpage-v1 deploy -n teste
+  807  kubectl edit deploy productpage-v1 -n teste
+  808  kubectl edit productpage-v1 deploy -n teste2
+  809  kubectl get deploy -n teste2
+  810  kubectl edit deploy meu-site-estatico -n teste2
+  811  cd home/devops/robsongithub/
+  812  cd /home/devops/robsongithub/
+  813  ls
+  814  cd gitopspublic/
+  815  ls
+  816  vim dev2/front.yaml 
+  817  git add . &&  git commit -m "update replicaset teste2" && git push
+  818  git add . &&  git commit -m "update replicaset 2" && git push
+  819  ls
+  820  vim regra_istio.yaml 
+  821  kubectl apply -f regra_istio.yaml 
+  822  vim regra_istio.yaml 
+  823  kubectl apply -f regra_istio.yaml 
+  824  kubectl get ns
+  825  kubectl get po -n istio-system
+  826  kubectl edit ns teste
+  827  ls
+  828  kubectl create namespace teste3
+  829  kubectl apply -f application_argocd.yaml 
+  830  git add . &&  git commit -m "publish canary deploy" && git push
+  831  kubectl get po -n teste3
+  832  kubectl create namespace teste3
+  833  kubectl get all -n teste3
+  834  kubectl apply -f application_argocd.yaml 
+  835  ls
+  836  ls canary
+  837  git add . &&  git commit -m "publish canary deploy v1" && git push
+  838  kubectl apply -f application_argocd.yaml 
+  839  kubectl apply -f application_canary.yaml 
+  840  kubectl delete -f application_canary.yaml 
+  841  kubectl apply -f application_canary.yaml 
+  842  vim /etc/hosts
+  843  kubectl apply -f application_canary.yaml 
+  844  kubectl get po -n teste3
+  845  kubectl delete -f application_canary.yaml 
+  846  ls
+  847  kubectl delete -f application_argocd.yaml 
+  848  kubectl get ing -n teste3
+  849  kubectl delete namespace teste3
+  850  kubectl create namespace teste3
+  851  kubectl delete -f application_canary.yaml 
+  852  kubectl apply -f application_canary.yaml 
+  853  kubectl get ing -n teste3
+  854  kubectl apply -f application_canary.yaml 
+  855  cd ..
+  856  git clone git@robsonsantos:robsonsantosdevops/argorollouts.git
+  857  ls
+  858  cd argorollouts/
+  859  ls
+  860  chown robsonsantos:robsonsantos -R /home/devops/
+  861  git add . && git commit -m "Add argo rollouts" && git push
+  862  cd ../argo-rollouts-example/
+  863  ls
+  864  cd /home/devops/robsongithub/gitopspublic/
+  865  kubectl apply -f application_canary.yaml 
+  866  kubectl get deploy -n teste3
+  867  kubectl get all -n teste3
+  868  k9s
+  869  kubectl get rollouts -n teste3
+  870  kubectl edit rollouts rollouts-demo-deployment -n teste3
+  871  kubectl get po -n teste3
+  872  kubectl apply -f ../argorollouts/istio_rollouts_hosts/virtual_server.yaml 
+  873  kubectl apply -f ../argorollouts/istio_rollouts_hosts/rollout.yaml 
+  874  git add . && git commit -m "Add argo rollouts" && git push
+  875  ls
+  876  cd ..
+  877  git clone git@robsonsantos:robsonsantosdevops/canary_deployment.git
+  878  cd canary_deployment/
+  879  cp ../argorollouts/istio_rollouts_hosts/* .
+  880  ls
+  881  mkdir dev
+  882  mv *.yaml dev/
+  883  ls
+  884  git add . && git commit -m "Add argo rollouts" && git push
+  885  cp ../argorollouts/application_argocd.yaml .
+  886  chown robsonsantos:robsonsantos -R /home/devops/
+  887  kubectl apply -f application_argocd.yaml 
+  888  argocd admin initial-password -n argocd
+  889  kubectl apply -f dev/rollout.yaml 
+  890  kubectl apply -f application_argocd.yaml 
+  891  kubectl apply -f dev/rollout.yaml 
+  892  kubectl apply -f application_argocd.yaml 
+  893  kubectl apply -f dev/rollout.yaml 
+  894  kubectl apply -f application_argocd.yaml 
+  895  kubectl apply -f dev/rollout.yaml 
+  896  kubectl apply -f application_argocd.yaml 
+  897  kubectl apply -f dev/rollout.yaml 
+  898  kubectl apply -f application_argocd.yaml 
+  899  kubectl apply -f .
+  900  kubectl apply -f application_argocd.yaml 
+  901  kubectl apply -f dev/rollout.yaml 
+  902  git add . && git commit -m "Add argo rollouts v1" && git push
+  903  kubectl apply -f dev/rollout.yaml 
+  904  git add . && git commit -m "Add argo rollouts v2" && git push
+  905  kubectl apply -f dev/rollout.yaml 
+  906  git add . && git commit -m "update app to blue" && git push
+  907  git add . && git commit -m "update app to yellow" && git push
+  908  kubectl apply -f application_argocd.yaml 
+  909  kubectl apply -f dev/rollout.yaml 
+  910  kubectl apply -f application_argocd.yaml 
+  911  kubectl apply -f dev/rollout.yaml 
+  912  git add . && git commit -m "update app to blue" && git push
+  913  kubectl apply -f application_argocd.yaml 
+  914  kubectl apply -f dev/rollout.yaml 
+  915  git add . && git commit -m "update app to yellow" && git push
+  916  cd ..
+  917  cd gitopspublic/
+  918  git add . && git commit -m "update app to yellow" && git push
+  919  cd ..
+  920  ls[
+  921  ls
+  922  cd argorollouts/
+  923  git add . && git commit -m "update app to yellow" && git push
+  924  cd ..
+  925  cd canary_deployment/
+  926  ls
+  927  cat /etc/passwd
+  928  passwd administrator
+  929  passwd administrador
+  930  kubectl argo rollouts dashboard &
+  931  ping 8.8.8.8
+  932  cd ../devops/
+  933  dpkg -i teams.deb 
+  934  ls
+  935  ls -la teams.deb 
+  936  apt install teams.deb 
+  937  cd robsongithub/argo-rollouts-example/
+  938  ls
+  939  kubectl apply -f argo-rollouts-example/canary-deployment-example/
+  940  kubectl apply -f argo-rollouts-example/
+  941  cd templates_rollouts/
+  942  kubectl apply -f .
+  943  kubectl get all
+  944  kubectl delete -f . -
+  945  kubectl create namespace rollout-teste
+  946  kubectl apply -f . -n rollout-teste
+  947  kubectl get all -n rollout-teste
+  948  kubectl delete -f . -n rollout-teste
+  949  kubectl apply -f . 
+  950  kubectl argo rollouts get rollout rollouts-demo
+  951  kubectl argo rollouts set image rollouts-demo rollouts-demo=argoproj/rollouts-demo:yellow
+  952  kubectl argo rollouts get rollout rollouts-demo
+  953  kubectl argo rollouts promote rollouts-demo
+  954  kubectl argo rollouts get rollout rollouts-demo
+  955  kubectl get pods
+  956  kubectl argo rollouts set image rollouts-demo rollouts-demo=argoproj/rollouts-demo:blue
+  957  kubectl argo rollouts get rollout rollouts-demo
+  958  kubectl delete -f service.yaml 
+  959  kubectl apply -f service.yaml 
+  960  vim /etc/hosts
+  961  htop
+  962  cd ..
+  963  cd templates_rollouts/
+  964  kubectl delete -f .
+  965  cd ..
+  966  cp -rf templates_rollouts/ ../gitopspublic/dev2/
+  967  history 
+  968  kubectl argo rollouts set image rollouts-demo rollouts-demo=argoproj/rollouts-demo:yellow
+  969  kubectl argo rollouts set image rollouts-demo rollouts-demo=argoproj/rollouts-demo:yellow -n teste3
+  970  kubectl argo rollouts get rollout rollouts-demo -n teste3
+  971  kubectl argo rollouts set image rollouts-demo rollouts-demo=argoproj/rollouts-demo:yellow -n teste3
+  972  kubectl argo rollouts get rollout rollouts-demo -n teste3
+  973  kubectl argo rollouts promote rollouts-demo -n teste3
+  974  kubectl argo rollouts get rollout rollouts-demo -n teste3
+  975  htop
+  976  kubectl argo rollouts get rollout rollouts-demo -n teste3
+  977  kubectl argo rollouts get rollout rollouts-demo-deployment -n teste3
+  978  vim commandos-rollouts.txt
+  979  kubectl argo rollouts get rollout rollouts-demo -n teste3
+  980  kubectl argo rollouts get rollout rollouts-demo-deployment -n teste3
+  981  kubectl argo rollouts get rollout rollouts-demo -n teste3
+  982  kubectl argo rollouts get rollout rollouts-demo-deployment -n teste3
+  983  kubectl argo rollouts get rollout rollouts-demo -n teste3
+  984  git add . && git commit -m "canary v1" && git push
+  985  ls
+  986  cd ../argorollouts/
+  987  git add . && git commit -m "canary v1" && git push
+  988  kubectl create ns teste4
+  989  cd istio_rollouts_hosts/
+  990  kubectl apply -f .
+  991  kubectl get all -n teste4
+  992  kubectl get vs -n teste4
+  993  vim /etc/hosts
+  994  kubectl apply -f .
+  995  kubectl delete -f .
+  996  kubectl apply -f services_rollouts.yaml 
+  997  kubectl apply -f rollout.yaml 
+  998  kubectl get po -n teste4
+  999  kubectl get po -A
+ 1000  kubectl get po -n teste4
+ 1001  kubectl delete -f .
+ 1002  kubectl label namespace teste4 istio-injection=enabled    
+ 1003  kubectl apply -f .
+ 1004  kubectl get all -n teste4
+ 1005  kubectl get vs -A
+ 1006  kubectl delete -f .
+ 1007  kubectl get all -n teste4
+ 1008  kubectl apply -f .
+ 1009  kubectl delete -f .
+ 1010  kubectl apply -f .
+ 1011  kubectl get all -n teste4
+ 1012  kubectl apply -f .
+ 1013  kubectl argo rollouts get rollout rollouts-demo -n teste3
+ 1014  kubectl argo rollouts get rollout rollouts-demo-host -n teste4
+ 1015  git add . && git commit -m "canary v2" && git push
+ 1016  kubectl argo rollouts get rollout rollouts-demo-host -n teste4
+ 1017  git add . && git commit -m "canary v3" && git push
+ 1018  cd ../devops/
+ 1019  ls
+ 1020  cd robsongithub/canary_deployment/
+ 1021  ls
+ 1022  git add . && git commit -m "canary v3" && git push
+ 1023  vim /etc/hosts
+ 1024  kubectl argo rollouts dashboard &
+ 1025  git add . && git commit -m "update app to blue" && git push
+ 1026  kubectl apply -f dev/rollout.yaml 
+ 1027  git add . && git commit -m "update app to yellow" && git push
+ 1028  kubectl apply -f dev/rollout.yaml 
+ 1029  kind export kubeconfig --name space-k8s-cluster
+ 1030  kubectl apply -f dev/rollout.yaml 
+ 1031  git add . && git commit -m "update app to blue" && git push
+ 1032  git add . && git commit -m "update app to yellow" && git push
+ 1033  kind export kubeconfig --name space-k8s-cluster
+ 1034  kubectl get nodes
+ 1035  kubectl apply -f dev/rollout.yaml 
+ 1036  git add . && git commit -m "update app to blue" && git push
+ 1037  kubectl apply -f dev/rollout.yaml 
+ 1038  git add . && git commit -m "update app to yellow" && git push
+ 1039  kubectl apply -f dev/rollout.yaml 
+ 1040  git add . && git commit -m "update app to blue" && git push
+ 1041  history > command-24-05-23.txt
