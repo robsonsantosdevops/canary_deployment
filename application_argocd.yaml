@@ -6,7 +6,7 @@ metadata:
   name: canary-deployment-host
   namespace: argocd
 spec:
-  project: gitops4
+  project: gitops5
 
   source:
     repoURL: 'https://github.com/robsonsantosdevops/canary_deployment.git'
@@ -32,6 +32,7 @@ spec:
     - /spec/http/0
 
   - group: argoproj.io
+    name: argo-rollouts-dashboard
     kind: Rollout
     jsonPointers:
       - /status/conditions?(@.type=="OutOfSync")
@@ -46,7 +47,7 @@ spec:
 apiVersion: argoproj.io/v1alpha1
 kind: AppProject
 metadata:
-  name: gitops4
+  name: gitops5
   namespace: argocd
 spec:
   sourceRepos:
