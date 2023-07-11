@@ -1,6 +1,8 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
+  annotations:
+    argocd.argoproj.io/rollouts-enabled: "true"
   name: canary-deployment-host
   namespace: argocd
 spec:
@@ -33,6 +35,12 @@ spec:
     kind: Rollout
     jsonPointers:
       - /status/conditions?(@.type=="OutOfSync")
+
+
+  - rollout:
+    name: argo-rollouts-dashboard
+    kind: Rollout
+    group: argoproj.io
 ---
 # this manually creates the default project
 apiVersion: argoproj.io/v1alpha1

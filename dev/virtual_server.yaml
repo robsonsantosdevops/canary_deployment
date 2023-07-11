@@ -23,3 +23,4 @@ spec:
     - destination:
         host: canary-svc # referenced in canary.canaryService
       weight: 5
+# 0800 771 5305 vendas vivo
