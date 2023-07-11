@@ -33,14 +33,15 @@ spec:
 
   - group: argoproj.io
     kind: Rollout
+    name: argo-rollouts-dashboard
     jsonPointers:
       - /status/conditions?(@.type=="OutOfSync")
 
 
-  - rollout:
-    name: argo-rollouts-dashboard
-    kind: Rollout
-    group: argoproj.io
+  # - rollout:
+  #   name: argo-rollouts-dashboard
+  #   kind: Rollout
+  #   group: argoproj.io
 ---
 # this manually creates the default project
 apiVersion: argoproj.io/v1alpha1

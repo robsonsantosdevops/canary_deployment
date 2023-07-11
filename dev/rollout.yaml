@@ -1,8 +1,8 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Rollout
 metadata:
-  annotations:
-    argocd.argoproj.io/rollouts-enabled: "true"
+  # annotations:
+  #   argocd.argoproj.io/rollouts-enabled: "true"
   name: rollouts-demo-host
   namespace: teste4
 spec:
