@@ -33,7 +33,6 @@ spec:
 
   - group: argoproj.io
     kind: Rollout
-    name: argo-rollouts-dashboard
     jsonPointers:
       - /status/conditions?(@.type=="OutOfSync")
 
