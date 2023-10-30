@@ -4,7 +4,7 @@ metadata:
   name: rollouts-demo-host
   namespace: app-teste 
 spec:
-  replicas: 0
+  replicas: 1
   revisionHistoryLimit: 2
   selector:
     matchLabels:
