@@ -6,11 +6,11 @@ items:
     annotations:
       nginx.ingress.kubernetes.io/ssl-redirect: "false"
     name: rollouts-ingress-canary
-    namespace: teste4
+    namespace: app-teste
   spec:
     ingressClassName: nginx
     rules:
-    - host: canary.spacesecuritynetwork.local
+    - host: canary.space.local
       http:
         paths:
         - backend:
@@ -32,11 +32,11 @@ items:
     annotations:
       nginx.ingress.kubernetes.io/ssl-redirect: "false"
     name: rollouts-ingress-stable
-    namespace: teste4
+    namespace: app-teste
   spec:
     ingressClassName: nginx
     rules:
-    - host: stable.spacesecuritynetwork.local
+    - host: stable.space.local
       http:
         paths:
         - backend:

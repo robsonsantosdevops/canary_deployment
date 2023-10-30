@@ -2,7 +2,7 @@ apiVersion: argoproj.io/v1alpha1
 kind: Rollout
 metadata:
   name: rollouts-demo-host
-  namespace: teste4
+  namespace: app-teste 
 spec:
   replicas: 2
   revisionHistoryLimit: 2
