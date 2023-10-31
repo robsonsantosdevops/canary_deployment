@@ -37,7 +37,10 @@ spec:
       - setWeight: 5
       - pause:
           duration: 1m
-          
+     rollback:
+       enabled: true  # Habilita o rollback
+       revision: 2  # A revisão para a qual você deseja reverter
+       revisionHistoryLimit: 10           
 # ---
 # apiVersion: autoscaling/v2beta2
 # kind: HorizontalPodAutoscaler
