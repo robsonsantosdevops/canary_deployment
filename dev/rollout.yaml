@@ -18,7 +18,7 @@ spec:
     spec:
       containers:
       - name: rollouts-demo-host
-        image: argoproj/rollouts-demo:blue
+        image: argoproj/rollouts-demo:yellow
         ports:
         - name: http
           containerPort: 8080
@@ -41,24 +41,24 @@ spec:
     #    enabled: true  # Habilita o rollback
     #    #revision: 2  # A revisão para a qual você deseja reverter
     #    revisionHistoryLimit: 10           
-# ---
-# apiVersion: autoscaling/v2beta2
-# kind: HorizontalPodAutoscaler
-# metadata:
-#   name: rollouts-demo-host
-#   namespace: app-teste 
-# spec:
-#   maxReplicas: 10
-#   minReplicas: 10
-#   metrics:
-#     - type: Resource
-#       resource:
-#         name: cpu
-#         target:
-#           type: Utilization
-#           averageUtilization: 60
-#   scaleTargetRef:
-#     apiVersion: argoproj.io/v1alpha1
-#     kind: Rollout
-#     name: rollouts-demo-host
-# ---
+---
+apiVersion: autoscaling/v2beta2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: rollouts-demo-host
+  namespace: app-teste 
+spec:
+  maxReplicas: 10
+  minReplicas: 10
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 60
+  scaleTargetRef:
+    apiVersion: argoproj.io/v1alpha1
+    kind: Rollout
+    name: rollouts-demo-host
+---
