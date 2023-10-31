@@ -14,18 +14,16 @@ spec:
     path: dev
   destination: 
     server: https://kubernetes.default.svc
-    namespace: app-teste 
+    namespace: app-teste
+
   syncPolicy:
     syncOptions:
     - CreateNamespace=true
     - ApplyOutOfSyncOnly=true
-    - RespectIgnoreDifferences=true
-    - Replace=true
+
     automated:
       selfHeal: true
       prune: true
-  # rollback:
-  #    enabled: true
 
   ignoreDifferences:
   - group: networking.istio.io
@@ -38,9 +36,7 @@ spec:
     kind: Rollout
     jsonPointers:
       - /status/conditions?(@.type=="OutOfSync")
-      - /spec/template/spec/containers
-  # - rollback:
-  #     enabled: true
+
 
   - group: "*"
     kind: "*"
@@ -58,30 +54,7 @@ spec:
       - /spec/template/metadata/annotations
       - /spec/template/metadata/managedFields
       - /spec/template/metadata/ownerReferences
-  # - rollback:
-  #     enabled: true
-
-# ---
-# apiVersion: autoscaling/v2beta2
-# kind: HorizontalPodAutoscaler
-# metadata:
-#   name: rollouts-demo-host
-#   namespace: app-teste 
-# spec:
-#   maxReplicas: 10
-#   minReplicas: 10
-#   metrics:
-#     - type: Resource
-#       resource:
-#         name: cpu
-#         target:
-#           type: Utilization
-#           averageUtilization: 60
-#   scaleTargetRef:
-#     apiVersion: argoproj.io/v1alpha1
-#     kind: Rollout
-#     name: rollouts-demo-host
-# ---
+---
 # this manually creates the default project
 apiVersion: argoproj.io/v1alpha1
 kind: AppProject
@@ -97,3 +70,104 @@ spec:
   clusterResourceWhitelist:
     - group: '*'
       kind: '*'
+
+# cmWh7yV65HvtV0R5
+# apiVersion: argoproj.io/v1alpha1
+# kind: Application
+# metadata:
+#   annotations:
+#     argocd.argoproj.io/rollouts-enabled: "true"
+#   name: canary-deployment-test
+#   namespace: argocd
+# spec:
+#   project: gitops
+
+#   source:
+#     repoURL: 'https://github.com/robsonsantosdevops/canary_deployment.git'
+#     targetRevision: HEAD
+#     path: dev
+#   destination: 
+#     server: https://kubernetes.default.svc
+#     namespace: app-teste 
+#     syncPolicy:
+#       syncOptions:
+#       - CreateNamespace=true
+#       - ApplyOutOfSyncOnly=true
+#       - RespectIgnoreDifferences=true
+#       - Replace=true
+#       automated:
+#         selfHeal: true
+#         prune: true
+#   # rollback:
+#   #    enabled: true
+
+#   ignoreDifferences:
+#   - group: networking.istio.io
+#     kind: VirtualService
+#     jsonPointers:
+#     - /spec/http/0
+
+#   - group: argoproj.io
+#     name: argo-rollouts-dashboard
+#     kind: Rollout
+#     jsonPointers:
+#       - /status/conditions?(@.type=="OutOfSync")
+#       - /spec/template/spec/containers
+#   # - rollback:
+#   #     enabled: true
+
+#   - group: "*"
+#     kind: "*"
+#     jsonPointers:
+#       - /metadata/resourceVersion
+#       - /metadata/generation
+#       - /metadata/annotations/kubectl.kubernetes.io~1last-applied-configuration
+#       - /metadata/managedFields
+#       - /metadata/creationTimestamp
+#       - /metadata/ownerReferences
+#       - /status
+#       - /spec/replicas
+#       - /spec/template/spec/containers/image
+#       - /spec/template/metadata/creationTimestamp
+#       - /spec/template/metadata/annotations
+#       - /spec/template/metadata/managedFields
+#       - /spec/template/metadata/ownerReferences
+#   # - rollback:
+#   #     enabled: true
+
+# # ---
+# # apiVersion: autoscaling/v2beta2
+# # kind: HorizontalPodAutoscaler
+# # metadata:
+# #   name: rollouts-demo-host
+# #   namespace: app-teste 
+# # spec:
+# #   maxReplicas: 10
+# #   minReplicas: 10
+# #   metrics:
+# #     - type: Resource
+# #       resource:
+# #         name: cpu
+# #         target:
+# #           type: Utilization
+# #           averageUtilization: 60
+# #   scaleTargetRef:
+# #     apiVersion: argoproj.io/v1alpha1
+# #     kind: Rollout
+# #     name: rollouts-demo-host
+# # ---
+# # this manually creates the default project
+# apiVersion: argoproj.io/v1alpha1
+# kind: AppProject
+# metadata:
+#   name: gitops
+#   namespace: argocd
+# spec:
+#   sourceRepos:
+#     - '*'
+#   destinations:
+#     - namespace: '*'
+#       server: '*'
+#   clusterResourceWhitelist:
+#     - group: '*'
+#       kind: '*'
