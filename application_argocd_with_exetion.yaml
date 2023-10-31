@@ -12,7 +12,7 @@ spec:
     repoURL: 'https://github.com/robsonsantosdevops/canary_deployment.git'
     targetRevision: HEAD
     path: dev
-  destination: 
+  destination:
     server: https://kubernetes.default.svc
     namespace: app-teste
 
@@ -20,7 +20,8 @@ spec:
     syncOptions:
     - CreateNamespace=true
     - ApplyOutOfSyncOnly=true
-
+    - RespectIgnoreDifferences=true
+    - Replace=true
     automated:
       selfHeal: true
       prune: true
@@ -36,7 +37,20 @@ spec:
     kind: Rollout
     jsonPointers:
       - /status/conditions?(@.type=="OutOfSync")
-
+      - /metadata/resourceVersion
+      - /metadata/generation
+      - /metadata/annotations/kubectl.kubernetes.io~1last-applied-configuration
+      - /metadata/managedFields
+      - /metadata/creationTimestamp
+      - /metadata/ownerReferences
+      - /status
+      - /spec/replicas
+      - /spec/rollback
+      - /spec/template/spec/containers
+      - /spec/template/metadata/creationTimestamp
+      - /spec/template/metadata/annotations
+      - /spec/template/metadata/managedFields
+      - /spec/template/metadata/ownerReferences
 
   - group: "*"
     kind: "*"
@@ -49,7 +63,8 @@ spec:
       - /metadata/ownerReferences
       - /status
       - /spec/replicas
-      - /spec/template/spec/containers/image
+      - /spec/rollback
+      - /spec/template/spec/containers
       - /spec/template/metadata/creationTimestamp
       - /spec/template/metadata/annotations
       - /spec/template/metadata/managedFields
@@ -86,9 +101,9 @@ spec:
 #     repoURL: 'https://github.com/robsonsantosdevops/canary_deployment.git'
 #     targetRevision: HEAD
 #     path: dev
-#   destination: 
+#   destination:
 #     server: https://kubernetes.default.svc
-#     namespace: app-teste 
+#     namespace: app-teste
 #     syncPolicy:
 #       syncOptions:
 #       - CreateNamespace=true
@@ -140,7 +155,7 @@ spec:
 # # kind: HorizontalPodAutoscaler
 # # metadata:
 # #   name: rollouts-demo-host
-# #   namespace: app-teste 
+# #   namespace: app-teste
 # # spec:
 # #   maxReplicas: 10
 # #   minReplicas: 10
