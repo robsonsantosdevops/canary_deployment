@@ -8,8 +8,6 @@ metadata:
 spec:
   replicas: 1
   revisionHistoryLimit: 10
-  #rollback:
-  #  enabled: true  # Habilita o rollback
   selector:
     matchLabels:
       app: rollouts-demo-host
