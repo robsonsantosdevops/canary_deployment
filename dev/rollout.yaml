@@ -5,6 +5,7 @@ metadata:
     sidecar.istio.io/inject: "true"
     prometheus.istio.io/scrape: "true"
     prometheus.istio.io/port: "15090"
+    prometheus.istio.io/path: "/loki/api/v1/push"
   name: rollouts-demo-host
   namespace: app-teste 
 spec:
