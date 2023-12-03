@@ -21,7 +21,7 @@ spec:
     spec:
       containers:
       - name: rollouts-demo-host
-        image: argoproj/rollouts-demo:yellow
+        image: argoproj/rollouts-demo:blue
         ports:
         - name: http
           containerPort: 8080
@@ -39,7 +39,7 @@ spec:
       steps:
       - setWeight: 5
       - pause:
-          duration: 2m        
+          duration: 20m        
 ---
 # apiVersion: autoscaling/v2beta2
 # kind: HorizontalPodAutoscaler
