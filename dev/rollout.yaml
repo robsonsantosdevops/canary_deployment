@@ -39,7 +39,7 @@ spec:
       steps:
       - setWeight: 5
       - pause:
-          duration: 20m        
+          duration: 1m        
 ---
 # apiVersion: autoscaling/v2beta2
 # kind: HorizontalPodAutoscaler
