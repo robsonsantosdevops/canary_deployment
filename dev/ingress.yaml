@@ -10,7 +10,7 @@ items:
   spec:
     ingressClassName: nginx
     rules:
-    - host: canary-demo.keeggo.com
+    - host: canary.space.local  #canary-demo.keeggo.com
       http:
         paths:
         - backend:
