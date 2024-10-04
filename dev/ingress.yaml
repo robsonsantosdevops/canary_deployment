@@ -36,7 +36,7 @@ items:
   spec:
     ingressClassName: nginx
     rules:
-    - host: standard-demo.keeggo.com
+    - host: stable.space.local #standard-demo.keeggo.com
       http:
         paths:
         - backend:
