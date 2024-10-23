@@ -18,6 +18,7 @@ spec:
     metadata:
       labels:
         app: rollouts-demo-host
+        version: blue
     spec:
       containers:
       - name: rollouts-demo-host
