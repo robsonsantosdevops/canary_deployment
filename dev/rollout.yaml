@@ -18,7 +18,8 @@ spec:
     metadata:
       labels:
         app: rollouts-demo-host
-        version: blue
+        version: v1
+        istio.io/rev: "default"
     spec:
       containers:
       - name: rollouts-demo-host
